@@ -12,13 +12,13 @@ import data
 from MemorySeq2Seq import RNNModel
 
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
-parser.add_argument('--data', type=str, default='./data/penn/',
+parser.add_argument('--data', type=str, default='../Data/ParaNews/',
                     help='location of the data corpus')
 parser.add_argument('--model', type=str, default='LSTM',
                     help='type of recurrent net (RNN_TANH, RNN_RELU, LSTM, GRU)')
-parser.add_argument('--emsize', type=int, default=200,
+parser.add_argument('--emsize', type=int, default=512,
                     help='size of word embeddings')
-parser.add_argument('--nhid', type=int, default=200,
+parser.add_argument('--nhid', type=int, default=512,
                     help='number of hidden units per layer')
 parser.add_argument('--nlayers', type=int, default=1,
                     help='number of layers')
@@ -28,7 +28,7 @@ parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
 parser.add_argument('--epochs', type=int, default=40,
                     help='upper epoch limit')
-parser.add_argument('--batch_size', type=int, default=20, metavar='N',
+parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                     help='batch size')
 parser.add_argument('--dropout', type=float, default=0.2,
                     help='dropout applied to layers (0 = no dropout)')
@@ -42,6 +42,8 @@ parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='report interval')
 parser.add_argument('--save', type=str, default='model.pt',
                     help='path to save the final model')
+parser.add_argument('--nslots', type=int, default=3,
+                    help='number of memory slot')
 args = parser.parse_args()
 
 # Set the random seed manually for reproducibility.
@@ -65,7 +67,7 @@ corpus = data.Corpus(args.data)
 ntokens = len(corpus.dictionary)
 
 emb_layer = nn.Embedding(ntokens, args.emsize, sparse=True)
-seq2seq = RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout)
+seq2seq = RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.nslots)
 softmax_layer = softmax.Softmax(args.nhid, ntokens, args.dropout)
 
 if args.tied:
@@ -116,9 +118,9 @@ def get_batch(source, i, evaluation=False):
         mask = mask.cuda()
 
     input = Variable(data[:-1], volatile=evaluation)
-    input_mask = Variable(mask[:-1], volatile=evaluation)
+    input_mask = Variable(mask[:-1], volatile=evaluation) - input.eq(corpus.dictionary['</s>']).long()
     target = Variable(data[1:].view(-1))
-    target_mask = Variable(mask[1:].view(-1))
+    target_mask = Variable(mask[1:].view(-1)) - target.eq(corpus.dictionary['<s>']).long()
     return input, input_mask, target, target_mask
 
 
