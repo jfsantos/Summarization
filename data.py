@@ -79,7 +79,7 @@ class Corpus(object):
                 ids = numpy.zeros(len(words), dtype='int32')
                 for i, word in enumerate(words):
                     ids[i] = self.dictionary[word]
-                if len(ids) > 10:
+                if 300 > len(ids) > 6:
                     sens.append(ids)
 
         if sort_by_len:
