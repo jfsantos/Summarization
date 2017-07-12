@@ -15,10 +15,10 @@ def criterion(input, targets, targets_mask):
     loss = (-loss * targets_mask).sum() / targets_mask.sum()
     return loss
 
-parser = argparse.ArgumentParser(description='PyTorch PTB Language Model')
+parser = argparse.ArgumentParser(description='News summarization model')
 
 # Model parameters.
-parser.add_argument('--data', type=str, default='./data/penn',
+parser.add_argument('--data', type=str, default='../Data/ParaNews/',
                     help='location of the data corpus')
 parser.add_argument('--checkpoint', type=str, default='./model.pt',
                     help='model checkpoint to use')
@@ -62,7 +62,7 @@ ntokens = len(corpus.dictionary)
 while True:
     s = raw_input('Input a sentence:')
     words = ['<s>'] + s.strip().split(' ') + ['</s>']
-    x = [corpus.dictionary.get_id(w) for w in words]
+    x = [corpus.dictionary[w] for w in words]
     l = len(x)
 
     data = numpy.zeros((l+1, 1), dtype='int64')

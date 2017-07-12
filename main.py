@@ -106,8 +106,8 @@ def get_batch(source, i, evaluation=False):
 
     maxlen = max([len(t) for t in subset]) + 1
 
-    data = numpy.zeros((maxlen, args.batch_size), dtype='int64')
-    mask = numpy.zeros((maxlen, args.batch_size), dtype='int64')
+    data = numpy.zeros((maxlen, bsz), dtype='int64')
+    mask = numpy.zeros((maxlen, bsz), dtype='int64')
     for j in range(bsz):
         data[:subset[j].shape[0], j] = subset[j]
         mask[:subset[j].shape[0], j] = 1
@@ -134,7 +134,7 @@ def evaluate(data_source):
         model.seq2seq.set_mask(data_mask)
         output = model(data)
         output_flat = output.view(-1, ntokens)
-        total_loss += len(data) * criterion(output_flat, targets, targets_mask).data
+        total_loss += data.size(1) * criterion(output_flat, targets, targets_mask).data
     return total_loss[0] / len(data_source)
 
 
