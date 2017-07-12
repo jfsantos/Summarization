@@ -1,5 +1,7 @@
 # Summarization
 
+Requirment: https://github.com/pytorch/pytorch.git , strongly recommand use miniconda2 and install pytorch from source.
+
 This model can be trained by the using command:
 
 ```bash
